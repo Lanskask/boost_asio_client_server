@@ -1,0 +1,12 @@
+[requires]
+#boost/1.66.0
+boost/1.73.0
+#poco/1.9.4
+asio/1.16.0
+
+[generators]
+cmake
+
+[options]
+Boost:shared=False
+#Poco:shared=False

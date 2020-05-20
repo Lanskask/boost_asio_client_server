@@ -18,3 +18,6 @@ target_link_libraries(asio_server ${CONAN_LIBS})
 add_executable(asio_client asio_client.cpp)
 target_link_libraries(asio_client ${CONAN_LIBS})
 
+add_executable(programming_options programming_options.cpp)
+target_link_libraries(programming_options ${CONAN_LIBS})
+

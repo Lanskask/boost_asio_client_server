@@ -1,13 +1,17 @@
 #include <iostream>
 #include <fstream>
+#include <tuple>
 #include <boost/asio.hpp>
 #include <boost/asio/signal_set.hpp>
+#include <boost/program_options.hpp>
 
-using namespace boost::asio;
-using ip::tcp;
 using std::string;
+using std::tuple;
 using std::cout;
 using std::endl;
+using namespace boost::asio;
+using ip::tcp;
+namespace po = boost::program_options;
 
 const string &read_file(const string &file_name) {
     std::ifstream ifs(file_name);
@@ -43,25 +47,53 @@ void receive_msg(tcp::socket &socket) {
     }
 }
 
-int check_command_line_arguments(int argc, char *argv[]) {
+std::tuple<string, int, string> check_command_line_arguments(int argc, char *argv[]) {
     // Check command line arguments.
+    std::tuple<string, int, string> res;
     if (argc != 4) {
-        std::cerr << "Usage: http_server <address> <port> <doc_root>\n";
-        std::cerr << "  For IPv4, try:\n";
-        std::cerr << "    receiver 0.0.0.0 80 .\n";
-        std::cerr << "  For IPv6, try:\n";
-        std::cerr << "    receiver 0::0 80 .\n";
+        std::cerr << "Usage: \n\tasio_client <host_url> <host_port> <input_data_file_name>\n";
+        // set defaults
+        res = std::make_tuple("127.0.0.1", 1234, "example_input_file.txt");
+    } else {
+        res = std::make_tuple(*argv[1], (int)*argv[2], *argv[3]);
     }
+    return res;
 }
 
+tuple<string, int, string> server_options(const int argc, char *argv[]) {
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help", "produce help message")
+            ("host_ip", po::value<string>()->default_value("127.0.0.1"), "host ip")
+            ("host_port", po::value<int>()->default_value(1234), "host port")
+            ("input_data_file", po::value<string>()->default_value("input_data_file.txt"), "input data file");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << desc << "\n";
+        EXIT_FAILURE;
+    }
+
+    tuple<string, int, string> res = std::make_tuple(
+            vm["host_ip"].as<string>(),
+            vm["host_port"].as<int>(),
+            vm["input_data_file"].as<string>()
+    );
+
+    return res;
+};
+
 int main(int argc, char *argv[]) {
-    const string host_ip_addr = "127.0.0.1";
-    const int host_port = 1234;
+//    const string host_ip_addr = "127.0.0.1";
+//    const int host_port = 1234;
+//    const string file_name = argv[1];
     const string msg = "Hello from Client!\n";
-    const string file_name = argv[1];
 
     check_command_line_arguments(argc, argv);
-
+    tuple<string, int, string> options = server_options(argc, argv);
 
     boost::asio::io_service io_service;
 

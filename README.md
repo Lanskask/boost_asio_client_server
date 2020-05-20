@@ -6,30 +6,18 @@ and code from Boost documentation and StackOverflow of cource :)
 To build this client-server I used [conan.io](https://docs.conan.io/en/latest/getting_started.html)
   
 ## How to build and run
-General шnstruction written in `run_all.sh` file 
+General instruction written in `run_all.sh` file 
 
+It isn't correct. 
+DON"T RUN IT!!!
 ```shell script
 sh run_all.sh
 ```
 
-## Notes
-
-Initially to handle signals I used
-
+## How to use Programming options
 ```shell script
-void signal_handler(const boost::system::error_code &error, int signal_number) {
-    cout << "t least it was here" << endl;
-    if (!error) {
-        cout << "It's a signal occurred! Sig number: " << signal_number << endl;
-    } else {
-        cout << "It's a error: " << error.message() << endl;
-    }
-}
-
-boost::asio::signal_set signals(io_service, SIGTERM, SIGHUP);
-signals.async_wait(signal_handler);
+./programming_options --host_ip "127.0.0.1" --host_port 1234 --input_data_file "input_data_file.txt"
 ```
-But it doesn't work as I checked it.
 
 ## TODO
 - [x] ~~correct signal handling. Hope that asio error hanling closes all it's stuff itself~~ 

@@ -8,6 +8,7 @@
 using std::string;
 using std::tuple;
 using std::cout;
+using std::cerr;
 using std::endl;
 using namespace boost::asio;
 using ip::tcp;
@@ -42,7 +43,7 @@ tuple<string, int, string> server_options(const int argc, char *argv[]) {
 const string read_file(const string &file_name) {
     std::ifstream ifs(file_name);
     if(!ifs.is_open()) {
-        std::cerr << "File " << file_name <<  " isn't opened!" << endl;
+        cerr << "File " << file_name <<  " isn't opened!" << endl;
         exit(EXIT_FAILURE);
     } else {
         cout << "File is opened!" << endl;

@@ -44,15 +44,9 @@ void send_message(tcp::socket &socket, const string &message) {
 }
 
 void signal_handling(boost::asio::io_service &io_service) {
-//    boost::asio::signal_set signals(io_service, SIGTERM, SIGHUP);
-//    signals.async_wait(signal_handler);
-
     boost::asio::signal_set signals(io_service, SIGTERM, SIGHUP);
     signals.async_wait(
             boost::bind(&boost::asio::io_service::stop, &io_service));
-
-//        signal(SIGTERM, simple_signal_handler);
-//        signal(SIGHUP, simple_signal_handler);
 }
 
 int main(int argc, char *argv[]) {

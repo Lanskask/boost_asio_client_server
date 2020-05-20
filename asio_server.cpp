@@ -22,12 +22,12 @@ void simple_signal_handler(const int signum) {
 void save_into_file(const string &msg) {
     const string file_name = "message_log.txt";
     std::ofstream myfile;
-    myfile.open(file_name);
+    myfile.open(file_name, std::ios_base::app);
     myfile << msg + "\n";
     myfile.close();
 }
 
-void read_data(tcp::socket &socket) {
+string read_data(tcp::socket &socket) {
     boost::asio::streambuf buf;
     std::size_t num_of_readed_bytes = boost::asio::read_until(socket, buf, "\n");
     if (num_of_readed_bytes <= 0) {
@@ -36,6 +36,7 @@ void read_data(tcp::socket &socket) {
     string data = boost::asio::buffer_cast<const char *>(buf.data());
     save_into_file(data);
     cout << data << endl;
+    return data;
 }
 
 void send_message(tcp::socket &socket, const string &message) {
@@ -58,23 +59,26 @@ int main(int argc, char *argv[]) {
 
         signal_handling(io_service);
 
-        //listen for new connection
-        tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), host_port));
+        for (;;) {
+            //listen for new connection
+            tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), host_port));
 
-        //socket creation
-        tcp::socket socket_(io_service);
+            //socket creation
+            tcp::socket socket_(io_service);
 
-        //waiting for the connection
-        acceptor_.accept(socket_);
+            //waiting for the connection
+            acceptor_.accept(socket_);
+            cout << "Waiting for the connection" << endl;
 
-        //read operation
-        read_data(socket_);
+            //read operation
+            string accepted_message = read_data(socket_);
 
-        //write operation
-        send_message(socket_, "Hello From Server!");
-        cout << "Server sent Hello message to Client!" << endl;
+            //write operation
+            send_message(socket_, "The message was:\n\t" + accepted_message);
+            cout << "Server sent message to Client!" << endl;
+        }
     } catch (std::exception &e) {
         std::cerr << "exception: " << e.what() << "\n";
     }
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -4,8 +4,10 @@ Based on [socket-programming-in-cpp-using-boost-asio-tcp-server-and-client](http
 and code from Boost documentation and StackOverflow of cource :)
 
 To build this client-server I used [conan.io](https://docs.conan.io/en/latest/getting_started.html)
- 
-I'm noot sure that copying of `example_input_file.txt` via *cmake* works, becouse of this put 
+
+Excuse me that without tests and `-Wall -Wextra -pedantic` flags.
+
+I'm not sure that copying of `example_input_file.txt` via *cmake* works, becouse of this put 
 `example_input_file.txt` file near bin file.
  
 ## How to build and run

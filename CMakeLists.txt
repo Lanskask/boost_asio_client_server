@@ -7,6 +7,9 @@ add_compile_options(-std=c++17)
 #For clang: -stdlib=libc++
 #set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
 
+configure_file(example_input_file.txt ${CMAKE_CURRENT_BINARY_DIR}/example_input_file.txt COPYONLY)
+#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example_input_file.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup()

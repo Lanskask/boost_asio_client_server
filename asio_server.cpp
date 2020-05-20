@@ -10,6 +10,7 @@ using namespace boost::asio;
 using ip::tcp;
 using std::string;
 using std::cout;
+using std::cerr;
 using std::endl;
 
 void simple_signal_handler(const int signum) {
@@ -27,8 +28,47 @@ void save_into_file(const string &msg) {
 }
 
 void read_data(tcp::socket &socket) {
+    // TODO: Need to debug
+    if (false) {
+        const std::string delimiter = "\r\n\r\n";
+        boost::asio::write(socket, boost::asio::buffer("cmd1" + delimiter));
+
+
+        // Read a single command from socket2.
+        boost::asio::streambuf streambuf;
+        boost::asio::async_read_until(socket, streambuf, delimiter,
+                                      [delimiter, &streambuf](
+                                              const boost::system::error_code &error_code,
+                                              std::size_t bytes_transferred) {
+                                          // Verify streambuf contains more data beyond the delimiter. (e.g.
+                                          // async_read_until read beyond the delimiter)
+                                          assert(streambuf.size() > bytes_transferred);
+
+                                          // Extract up to the first delimiter.
+                                          std::string command{
+                                                  buffers_begin(streambuf.data()),
+                                                  buffers_begin(streambuf.data()) + bytes_transferred
+                                                  - delimiter.size()};
+
+                                          // Consume through the first delimiter so that subsequent async_read_until
+                                          // will not reiterate over the same data.
+                                          streambuf.consume(bytes_transferred);
+
+                                          assert(command == "cmd1");
+                                          std::cout << "received command: " << command << "\n"
+                                                    << "streambuf contains " << streambuf.size() << " bytes."
+                                                    << std::endl;
+                                      }
+        );
+    }
+
+    //   ------ Need to debug
+
     boost::asio::streambuf buf;
-    boost::asio::read_until(socket, buf, "\n");
+    std::size_t num_of_readed_bytes = boost::asio::read_until(socket, buf, "\n");
+    if (num_of_readed_bytes <= 0) {
+        cerr << "num_of_readed_bytes<=0" << endl;
+    }
     string data = boost::asio::buffer_cast<const char *>(buf.data());
     save_into_file(data);
     cout << data << endl;
@@ -39,6 +79,7 @@ void send_message(tcp::socket &socket, const string &message) {
     boost::asio::write(socket, boost::asio::buffer(message));
 }
 
+// TODO: Change it or remove
 int check_command_line_arguments(int argc, char *argv[]) {
     // Check command line arguments.
     int res;
@@ -46,7 +87,7 @@ int check_command_line_arguments(int argc, char *argv[]) {
         std::cerr << "Usage: asio_server <port>\n";
         res = 1234; // default port
     } else {
-        res = (int)*argv[2];
+        res = (int) *argv[2];
     }
 }
 
@@ -90,4 +131,4 @@ int main(int argc, char *argv[]) {
         std::cerr << "exception: " << e.what() << "\n";
     }
     return 0;
-}  
+}

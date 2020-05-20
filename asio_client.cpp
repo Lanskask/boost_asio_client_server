@@ -13,9 +13,40 @@ using namespace boost::asio;
 using ip::tcp;
 namespace po = boost::program_options;
 
-const string &read_file(const string &file_name) {
-    std::ifstream ifs(file_name);
+tuple<string, int, string> server_options(const int argc, char *argv[]) {
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help", "produce help message")
+            ("host_ip", po::value<string>()->default_value("127.0.0.1"), "host ip")
+            ("host_port", po::value<int>()->default_value(1234), "host port")
+            ("input_data_file", po::value<string>()->default_value("example_input_file.txt"), "input data file");
 
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << desc << "\n";
+        EXIT_FAILURE;
+    }
+
+    tuple<string, int, string> res = std::make_tuple(
+            vm["host_ip"].as<string>(),
+            vm["host_port"].as<int>(),
+            vm["input_data_file"].as<string>()
+    );
+
+    return res;
+};
+
+const string read_file(const string &file_name) {
+    std::ifstream ifs(file_name);
+    if(!ifs.is_open()) {
+        std::cerr << "File " << file_name <<  " isn't opened!" << endl;
+        exit(EXIT_FAILURE);
+    } else {
+        cout << "File is opened!" << endl;
+    }
     std::string content;
     content.assign(
             std::istreambuf_iterator<char>(ifs),
@@ -60,52 +91,35 @@ std::tuple<string, int, string> check_command_line_arguments(int argc, char *arg
     return res;
 }
 
-tuple<string, int, string> server_options(const int argc, char *argv[]) {
-    po::options_description desc("Allowed options");
-    desc.add_options()
-            ("help", "produce help message")
-            ("host_ip", po::value<string>()->default_value("127.0.0.1"), "host ip")
-            ("host_port", po::value<int>()->default_value(1234), "host port")
-            ("input_data_file", po::value<string>()->default_value("input_data_file.txt"), "input data file");
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
-
-    if (vm.count("help")) {
-        cout << desc << "\n";
-        EXIT_FAILURE;
-    }
-
-    tuple<string, int, string> res = std::make_tuple(
-            vm["host_ip"].as<string>(),
-            vm["host_port"].as<int>(),
-            vm["input_data_file"].as<string>()
-    );
-
-    return res;
-};
 
 int main(int argc, char *argv[]) {
-//    const string host_ip_addr = "127.0.0.1";
-//    const int host_port = 1234;
-//    const string file_name = argv[1];
-    const string msg = "Hello from Client!\n";
+    string host_ip_addr = "";
+    int host_port = 0;
+    string file_name = "";
+    std::tie(host_ip_addr, host_port, file_name) = server_options(argc, argv);
 
-    check_command_line_arguments(argc, argv);
-    tuple<string, int, string> options = server_options(argc, argv);
+//    cout
+//            << "host_ip: " << host_ip_addr << endl
+//            << "host_port: " << host_port << endl
+//            << "input_data_file: " << file_name << endl;
+
+    const string msg = read_file(file_name) + '\n';
+    cout << "msg: " << msg << "after msg" << endl;
 
     boost::asio::io_service io_service;
-
     //socket creation
     tcp::socket socket(io_service);
 
+    cout << "Log 1" << endl;
     //connection
     socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(host_ip_addr), host_port));
 
+    cout << "Log 2" << endl;
     // request/message from client
     send_msg(msg, socket);
 
+    cout << "Log 3" << endl;
     receive_msg(socket);
 
     return EXIT_SUCCESS;

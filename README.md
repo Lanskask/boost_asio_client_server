@@ -16,7 +16,7 @@ sh run_all.sh
 
 ## How to use Programming options
 ```shell script
-./programming_options --host_ip "127.0.0.1" --host_port 1234 --input_data_file "input_data_file.txt"
+./asio_client --host_ip "127.0.0.1" --host_port 1234 --input_data_file "example_input_file.txt"
 ```
 
 ## TODO

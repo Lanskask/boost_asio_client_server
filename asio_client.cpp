@@ -27,7 +27,7 @@ tuple<string, int, string> server_options(const int argc, char *argv[]) {
 
     if (vm.count("help")) {
         cout << desc << "\n";
-        EXIT_FAILURE;
+        exit(EXIT_SUCCESS);
     }
 
     tuple<string, int, string> res = std::make_tuple(
@@ -91,35 +91,25 @@ std::tuple<string, int, string> check_command_line_arguments(int argc, char *arg
     return res;
 }
 
-
-
 int main(int argc, char *argv[]) {
     string host_ip_addr = "";
     int host_port = 0;
     string file_name = "";
     std::tie(host_ip_addr, host_port, file_name) = server_options(argc, argv);
 
-//    cout
-//            << "host_ip: " << host_ip_addr << endl
-//            << "host_port: " << host_port << endl
-//            << "input_data_file: " << file_name << endl;
-
     const string msg = read_file(file_name) + '\n';
-    cout << "msg: " << msg << "after msg" << endl;
+//    cout << "msg: " << msg << "after msg" << endl;
 
     boost::asio::io_service io_service;
     //socket creation
     tcp::socket socket(io_service);
 
-    cout << "Log 1" << endl;
     //connection
     socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(host_ip_addr), host_port));
 
-    cout << "Log 2" << endl;
     // request/message from client
     send_msg(msg, socket);
 
-    cout << "Log 3" << endl;
     receive_msg(socket);
 
     return EXIT_SUCCESS;

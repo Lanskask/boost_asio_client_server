@@ -3,6 +3,8 @@
 #include <csignal>
 #include <boost/asio.hpp>
 #include <boost/asio/signal_set.hpp>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 using namespace boost::asio;
 using ip::tcp;
@@ -37,30 +39,55 @@ void send_message(tcp::socket &socket, const string &message) {
     boost::asio::write(socket, boost::asio::buffer(message));
 }
 
-int main() {
-    const int host_port = 1234;
+int check_command_line_arguments(int argc, char *argv[]) {
+    // Check command line arguments.
+    int res;
+    if (argc != 2) {
+        std::cerr << "Usage: asio_server <port>\n";
+        res = 1234; // default port
+    } else {
+        res = (int)*argv[2];
+    }
+}
 
-    boost::asio::io_service io_service;
+void signal_handling(boost::asio::io_service &io_service) {
 //    boost::asio::signal_set signals(io_service, SIGTERM, SIGHUP);
 //    signals.async_wait(signal_handler);
 
-    signal(SIGTERM, simple_signal_handler);
-    signal(SIGHUP, simple_signal_handler);
+    boost::asio::signal_set signals(io_service, SIGTERM, SIGHUP);
+    signals.async_wait(
+            boost::bind(&boost::asio::io_service::stop, &io_service));
 
-    //listen for new connection
-    tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), host_port));
+//        signal(SIGTERM, simple_signal_handler);
+//        signal(SIGHUP, simple_signal_handler);
+}
 
-    //socket creation
-    tcp::socket socket_(io_service);
+int main(int argc, char *argv[]) {
+    try {
+//        const int host_port = check_command_line_arguments(argc, argv);
+        const int host_port = 1234;
 
-    //waiting for the connection
-    acceptor_.accept(socket_);
+        boost::asio::io_service io_service;
 
-    //read operation
-    read_data(socket_);
+        signal_handling(io_service);
 
-    //write operation
-    send_message(socket_, "Hello From Server!");
-    cout << "Server sent Hello message to Client!" << endl;
+        //listen for new connection
+        tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), host_port));
+
+        //socket creation
+        tcp::socket socket_(io_service);
+
+        //waiting for the connection
+        acceptor_.accept(socket_);
+
+        //read operation
+        read_data(socket_);
+
+        //write operation
+        send_message(socket_, "Hello From Server!");
+        cout << "Server sent Hello message to Client!" << endl;
+    } catch (std::exception &e) {
+        std::cerr << "exception: " << e.what() << "\n";
+    }
     return 0;
 }  

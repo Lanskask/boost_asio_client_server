@@ -43,11 +43,25 @@ void receive_msg(tcp::socket &socket) {
     }
 }
 
+int check_command_line_arguments(int argc, char *argv[]) {
+    // Check command line arguments.
+    if (argc != 4) {
+        std::cerr << "Usage: http_server <address> <port> <doc_root>\n";
+        std::cerr << "  For IPv4, try:\n";
+        std::cerr << "    receiver 0.0.0.0 80 .\n";
+        std::cerr << "  For IPv6, try:\n";
+        std::cerr << "    receiver 0::0 80 .\n";
+    }
+}
+
 int main(int argc, char *argv[]) {
     const string host_ip_addr = "127.0.0.1";
     const int host_port = 1234;
     const string msg = "Hello from Client!\n";
     const string file_name = argv[1];
+
+    check_command_line_arguments(argc, argv);
+
 
     boost::asio::io_service io_service;
 

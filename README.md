@@ -7,16 +7,16 @@ To build this client-server I used [conan.io](https://docs.conan.io/en/latest/ge
 
 Excuse me that without tests and `-Wall -Wextra -pedantic` flags.
 
-I'm not sure that copying of `example_input_file.txt` via *cmake* works, becouse of this put 
-`example_input_file.txt` file near bin file.
- 
 ## How to build and run
-General instruction written in `run_all.sh` file 
 
-It isn't correct. 
-DON"T RUN IT!!!
-```shell script
-sh run_all.sh
+At first run
+```yaml
+vagrant up
+vagrant ssh
+```
+And then inside Vagrant 
+```yaml
+sh run_in_vagrant.sh
 ```
 
 ## How to use Programming options

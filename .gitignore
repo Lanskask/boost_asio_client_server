@@ -2,6 +2,8 @@
 cmake-build-debug/
 build/
 
+run_little.sh
+run_all.sh
 programming_options.cpp
 
 # Vagrant

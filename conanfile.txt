@@ -7,7 +7,3 @@ cmake
 
 [options]
 Boost:shared=False
-
-[settings]
-compiler=g++
-compiler.version=6

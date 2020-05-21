@@ -1,4 +1,6 @@
 language: cpp
+python: "3.6"
+sudo: required
 
 compiler:
   - g++
@@ -11,12 +13,17 @@ matrix:
       compiler: gcc
       addons:
         apt:
-          packages: &precise_latest_boost_packages
-            - gcc-4.8
-            - g++-4.8
+          sources:
+            - ubuntu-toolchain-r-test
+          packages: &precise_latest_boost_packages_2
+            - gcc-6
+            - g++-6
 
 # install cmake 3.3 and pip conan
-install:
+before_install:
+  - sudo add-apt-repository -y ppa:deadsnakes/ppa
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update
   # first we create a directory for the CMake binaries
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
@@ -31,34 +38,24 @@ install:
   # preinstalled CMake with our own.
   - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
   # don't forget to switch back to the main build directory once you are done
+  #  - travis_retry wget --no-check-certificate https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_25_2.deb &&
   - cd ${TRAVIS_BUILD_DIR}
-  - pip install conan
+
 
 before_script:
+  - sudo apt-get install python3.6
+#  - sudo apt-get install python3-pip
+  - curl https://bootstrap.pypa.io/get-pip.py | sudo python3.6
+  - python3.6 -m pip -V
+  - sudo python3.6 -m pip install conan
+  - conan --version
+#  - conan user
+
+script:
   # create a build folder for the out-of-source build
   - mkdir build && cd build
   - conan install ..
   - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-script:
   - cmake --build .
   # run cmake; here we assume that the project's
   # top-level CMakeLists.txt is located at '..'
-
-#language: cpp
-#compiler:
-#  - gcc
-#install:
-#  # Upgrade GCC
-#  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-#  - sudo apt-get update -qq
-#  - sudo apt-get install -qq g++-4.9
-#  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
-#
-#  # Install conan
-#  - pip install conan
-#  # Automatic detection of your arch, compiler, etc.
-#  - conan user
-#
-#script:
-#  # Download dependencies, build, test and create package
-#  - conan create . user/channel

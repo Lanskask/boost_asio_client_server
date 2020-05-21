@@ -1,4 +1,11 @@
 .idea/
 cmake-build-debug/
+build/
 
 programming_options.cpp
+
+# Vagrant
+.vagrant/
+.cache/
+.gnupg/
+.sudo_as_admin_successful

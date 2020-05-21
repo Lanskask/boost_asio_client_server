@@ -1,3 +1,5 @@
+echo "Installing conan"
+pip install --user conan
 
 echo "Building"
 mkdir build  && cd build

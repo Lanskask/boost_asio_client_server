@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(boost_asio_client_server)
-add_compile_options(-std=c++17)
+add_compile_options(-std=c++11)
 #add_compile_options(-static-libstdc++)
 
 #Flags: -lc++abi -std=c++11
@@ -21,6 +21,4 @@ target_link_libraries(asio_server ${CONAN_LIBS})
 add_executable(asio_client asio_client.cpp)
 target_link_libraries(asio_client ${CONAN_LIBS})
 
-add_executable(programming_options programming_options.cpp)
-target_link_libraries(programming_options ${CONAN_LIBS})
 

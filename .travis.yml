@@ -1,0 +1,64 @@
+language: cpp
+
+compiler:
+  - g++
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: true
+      compiler: gcc
+      addons:
+        apt:
+          packages: &precise_latest_boost_packages
+            - gcc-4.8
+            - g++-4.8
+
+# install cmake 3.3 and pip conan
+install:
+  # first we create a directory for the CMake binaries
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  # we use wget to fetch the cmake binaries
+  - travis_retry wget --no-check-certificate https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz
+  # extract the binaries; the output here is quite lengthy,
+  # so we swallow it to not clutter up the travis console
+  - tar -xvf cmake-3.3.2-Linux-x86_64.tar.gz > /dev/null
+  - mv cmake-3.3.2-Linux-x86_64 cmake-install
+  # add both the top-level directory and the bin directory from the archive
+  # to the system PATH. By adding it to the front of the path we hide the
+  # preinstalled CMake with our own.
+  - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+  # don't forget to switch back to the main build directory once you are done
+  - cd ${TRAVIS_BUILD_DIR}
+  - pip install conan
+
+before_script:
+  # create a build folder for the out-of-source build
+  - mkdir build && cd build
+  - conan install ..
+  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+script:
+  - cmake --build .
+  # run cmake; here we assume that the project's
+  # top-level CMakeLists.txt is located at '..'
+
+#language: cpp
+#compiler:
+#  - gcc
+#install:
+#  # Upgrade GCC
+#  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+#  - sudo apt-get update -qq
+#  - sudo apt-get install -qq g++-4.9
+#  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+#
+#  # Install conan
+#  - pip install conan
+#  # Automatic detection of your arch, compiler, etc.
+#  - conan user
+#
+#script:
+#  # Download dependencies, build, test and create package
+#  - conan create . user/channel

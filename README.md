@@ -24,8 +24,18 @@ sh run_in_vagrant.sh
 ./asio_client --host_ip "127.0.0.1" --host_port 1234 --input_data_file "example_input_file.txt"
 ```
 
+## Possible problems on *travis.ci*
+- installing something with pip - permission denied
+- it use pip2 instead pip3
+- no such command pip3 - pip3: command not found
+- no python3
+
 ## TODO
 - [x] ~~correct signal handling. Hope that asio error hanling closes all it's stuff itself~~ 
 - [ ] On client read message from file
 - [ ] Check how to pipe data from file into client and does it necesasry
 - [ ] Just tell client `<host_url> <host_port> <input_data_file_name>`
+
+
+
+
